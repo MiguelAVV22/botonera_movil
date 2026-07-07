@@ -47,7 +47,7 @@ class _BotoneraPageState extends State<BotoneraPage> {
 
   void connectSocket() {
     socket = IO.io(
-      "http://192.168.0.6:3001",
+      "http://192.168.100.34:3001",
       <String, dynamic>{
         "transports": ["websocket"],
         "autoConnect": false,
