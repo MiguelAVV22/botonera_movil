@@ -3,6 +3,7 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../utils/app_colors.dart';
 import '../widgets/color_selector.dart';
 import '../widgets/button_screen.dart';
+import '../config.dart';
 
 class BotoneraPage extends StatefulWidget {
   final String roomId;
@@ -52,7 +53,7 @@ class _BotoneraPageState extends State<BotoneraPage> {
 
   void connectSocket() {
     socket = IO.io(
-      "http://192.168.0.6:3001",
+      AppConfig.serverUrl,
       <String, dynamic>{
         "transports": ["websocket"],
         "autoConnect": false,

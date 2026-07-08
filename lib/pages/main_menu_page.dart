@@ -1,8 +1,65 @@
 import 'package:flutter/material.dart';
 import 'game_selection_page.dart';
+import '../config.dart';
 
 class MainMenuPage extends StatelessWidget {
   const MainMenuPage({super.key});
+
+  void _showConfigDialog(BuildContext context) {
+    final controller = TextEditingController(text: AppConfig.serverUrl);
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF0D0614),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+            side: const BorderSide(color: Color(0xFFFF7A00), width: 1.5),
+          ),
+          title: const Text(
+            "Configurar Servidor", 
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Dirección IP o URL del Servidor:", 
+                style: TextStyle(color: Colors.grey, fontSize: 13)
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: controller,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  hintText: "Ej: http://192.168.0.6:3001 o URL de internet",
+                  hintStyle: TextStyle(color: Colors.grey, fontSize: 13),
+                  enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFFFF7A00))),
+                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFFFFC400))),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancelar", style: TextStyle(color: Colors.grey)),
+            ),
+            TextButton(
+              onPressed: () {
+                if (controller.text.isNotEmpty) {
+                  AppConfig.serverUrl = controller.text;
+                }
+                Navigator.pop(context);
+              },
+              child: const Text("Guardar", style: TextStyle(color: Color(0xFFFF7A00), fontWeight: "900")),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +168,7 @@ class MainMenuPage extends StatelessWidget {
                 ),
               ),
 
-              const SizedBox(height: 60),
+              const SizedBox(height: 50),
 
               // Play Button
               GestureDetector(
@@ -158,6 +215,23 @@ class MainMenuPage extends StatelessWidget {
                         ),
                       ),
                     ],
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 25),
+
+              // Settings Link
+              TextButton.icon(
+                onPressed: () => _showConfigDialog(context),
+                icon: const Icon(Icons.settings, color: Color(0xFFFFC400), size: 18),
+                label: Text(
+                  'Configurar Servidor',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.7),
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    decoration: TextDecoration.underline,
                   ),
                 ),
               ),
