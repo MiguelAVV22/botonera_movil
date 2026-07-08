@@ -53,7 +53,7 @@ class MainMenuPage extends StatelessWidget {
                 }
                 Navigator.pop(context);
               },
-              child: const Text("Guardar", style: TextStyle(color: Color(0xFFFF7A00), fontWeight: "900")),
+              child: const Text("Guardar", style: TextStyle(color: Color(0xFFFF7A00), fontWeight: FontWeight.bold)),
             ),
           ],
         );
