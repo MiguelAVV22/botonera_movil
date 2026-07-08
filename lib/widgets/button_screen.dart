@@ -30,6 +30,7 @@ class ButtonScreen extends StatelessWidget {
         ),
         const SizedBox(height: 50),
         GestureDetector(
+          behavior: HitTestBehavior.opaque,
           onTap: onPressButton,
           child: Container(
             width: 220,

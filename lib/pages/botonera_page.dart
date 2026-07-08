@@ -27,6 +27,11 @@ class _BotoneraPageState extends State<BotoneraPage> {
   // Track team availability
   bool teamATaken = false;
   bool teamBTaken = false;
+  bool teamCTaken = false;
+  bool teamDTaken = false;
+  
+  String activeGame = "menu";
+  String? activeTurn;
 
   final List<String> colors = [
     "red",
@@ -47,7 +52,7 @@ class _BotoneraPageState extends State<BotoneraPage> {
 
   void connectSocket() {
     socket = IO.io(
-      "http://192.168.100.34:3001",
+      "http://192.168.0.6:3001",
       <String, dynamic>{
         "transports": ["websocket"],
         "autoConnect": false,
@@ -75,11 +80,32 @@ class _BotoneraPageState extends State<BotoneraPage> {
     socket.on("room_state", (data) {
       if (mounted) {
         setState(() {
+          activeGame = data["activeGame"] ?? "menu";
+          activeTurn = data["activeTurn"];
+          
           // Check which teams are taken
           final teams = data["teams"];
           if (teams != null) {
             teamATaken = teams["A"]["socketId"] != null && teams["A"]["socketId"] != socket.id;
             teamBTaken = teams["B"]["socketId"] != null && teams["B"]["socketId"] != socket.id;
+            if (teams["C"] != null) {
+              teamCTaken = teams["C"]["socketId"] != null && teams["C"]["socketId"] != socket.id;
+            }
+            if (teams["D"] != null) {
+              teamDTaken = teams["D"]["socketId"] != null && teams["D"]["socketId"] != socket.id;
+            }
+          }
+          
+          if (activeGame == "cultura" && selectedTeam != null) {
+            // Lock state is determined by turn
+            locked = (activeTurn != selectedTeam);
+            if (selectedColor != null) {
+              if (locked) {
+                message = "Turno del Equipo $activeTurn";
+              } else {
+                message = "¡TU TURNO! Responde";
+              }
+            }
           }
         });
       }
@@ -104,6 +130,7 @@ class _BotoneraPageState extends State<BotoneraPage> {
     });
 
     socket.on("winner_selected", (data) {
+      if (activeGame == "cultura") return;
       if (mounted) {
         setState(() {
           locked = true;
@@ -115,6 +142,7 @@ class _BotoneraPageState extends State<BotoneraPage> {
     });
 
     socket.on("game_reset", (_) {
+      if (activeGame == "cultura") return;
       if (mounted) {
         setState(() {
           locked = false;
@@ -252,32 +280,55 @@ class _BotoneraPageState extends State<BotoneraPage> {
   }
 
   Widget teamSelector() {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(
-          message,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 28,
-            fontWeight: FontWeight.bold,
-          ),
+    final List<Widget> children = [
+      Text(
+        message,
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 28,
+          fontWeight: FontWeight.bold,
         ),
-        const SizedBox(height: 40),
+      ),
+      const SizedBox(height: 30),
+      _buildTeamButton(
+        title: "EQUIPO A",
+        icon: Icons.group,
+        isTaken: teamATaken,
+        onTap: () => selectTeam("A"),
+      ),
+      const SizedBox(height: 15),
+      _buildTeamButton(
+        title: "EQUIPO B",
+        icon: Icons.group_work,
+        isTaken: teamBTaken,
+        onTap: () => selectTeam("B"),
+      ),
+    ];
+
+    if (activeGame == "cultura") {
+      children.addAll([
+        const SizedBox(height: 15),
         _buildTeamButton(
-          title: "EQUIPO A",
-          icon: Icons.group,
-          isTaken: teamATaken,
-          onTap: () => selectTeam("A"),
+          title: "EQUIPO C",
+          icon: Icons.diversity_3,
+          isTaken: teamCTaken,
+          onTap: () => selectTeam("C"),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 15),
         _buildTeamButton(
-          title: "EQUIPO B",
-          icon: Icons.group_work,
-          isTaken: teamBTaken,
-          onTap: () => selectTeam("B"),
+          title: "EQUIPO D",
+          icon: Icons.hub,
+          isTaken: teamDTaken,
+          onTap: () => selectTeam("D"),
         ),
-      ],
+      ]);
+    }
+
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: children,
+      ),
     );
   }
 
